@@ -1,32 +1,13 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function MainLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-    }
-  }, []);
-
   return (
-    <html>
+    <html lang="vi">
       <body>
-        <div>
-          <h1>Header</h1>
-          {children}
-        </div>
-      </body> 
+        {children}
+      </body>
     </html>
-
   );
 }
