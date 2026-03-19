@@ -1,31 +1,48 @@
-import Link from "next/link";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Mùa Quê",
-  description: "Giá nông sản theo mùa, theo địa phương",
-};
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function RootLayout({
+export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="vi">
-      <body>
-        <header style={{ padding: "16px", borderBottom: "1px solid #ddd" }}>
-          <nav style={{ display: "flex", gap: "16px" }}>
-            <Link href="/">Trang chủ</Link>
-            <Link href="/gia-nong-san-hom-nay">Giá nông sản</Link>
-            <Link href="/gioi-thieu">Giới thiệu</Link>
-          </nav>
-        </header>
+  const router = useRouter();
 
-        <main style={{ padding: "16px" }}>
-          {children}
-        </main>
+  useEffect(() => {
+    const isLogin = localStorage.getItem("isLogin");
+
+    if (!isLogin) {
+      router.push("/login");
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLogin");
+    router.push("/login");
+  };
+
+  return (
+    <html>
+      <body>
+
+        <div className="min-h-screen flex flex-col">
+          {/* HEADER */}
+          <header className="bg-blue-500 text-white p-4 flex justify-between">
+            <h1 className="font-bold">My App</h1>
+            <button
+              onClick={handleLogout}
+              className="bg-white text-blue-500 px-3 py-1 rounded"
+            >
+              Logout
+            </button>
+          </header>
+
+          {/* CONTENT */}
+          <main className="flex-1 p-6">{children}</main>
+        </div>
       </body>
-    </html>
+    </html>   
   );
 }
