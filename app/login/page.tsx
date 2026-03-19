@@ -7,15 +7,38 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    if (email === "admin" && password === "123") {
-      localStorage.setItem("isLogin", "true");
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // lưu token
+      localStorage.setItem("token", data.token);
+
+      // chuyển trang
       router.push("/");
-    } else {
-      alert("Sai tài khoản");
+    } catch (err) {
+      setError("Không kết nối được server");
     }
   };
 
@@ -28,9 +51,13 @@ export default function LoginPage() {
         Đăng nhập
       </h2>
 
+      {error && (
+        <p className="text-red-500 text-sm mb-2">{error}</p>
+      )}
+
       <input
         className="w-full mb-3 p-2 border rounded"
-        placeholder="Tài khoản"
+        placeholder="Email"
         onChange={(e) => setEmail(e.target.value)}
       />
 
