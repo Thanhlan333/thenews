@@ -1,3 +1,10 @@
+import "./globals.css";
+
+export const metadata = {
+  title: "My App",
+  description: "Fullstack project",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -5,9 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
