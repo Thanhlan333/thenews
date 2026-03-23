@@ -1,15 +1,26 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { login, getMe } from "@/api/auth.api";
+import { useAuth } from "@/contexts/auth.context";
 
 export default function LoginPage() {
+  const { user, setUser, loading: authLoading } = useAuth();
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 🔥 CHẶN nếu đã login
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/");
+    }
+  }, [user, authLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,33 +28,23 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        "https://thenewsbackend.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Đăng nhập thất bại");
-        setLoading(false);
-        return;
-      }
+      const data = await login(email, password);
 
       localStorage.setItem("token", data.token);
+
+      const userData = await getMe();
+      setUser(userData);
+
       router.push("/");
-    } catch (err) {
-      setError("Không kết nối được server");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  // 🔥 tránh flicker UI
+  if (authLoading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -62,31 +63,28 @@ export default function LoginPage() {
         )}
 
         <input
-          className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full mb-3 p-2 border rounded"
           placeholder="Email"
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
-          className="w-full mb-4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full mb-4 p-2 border rounded"
           placeholder="Mật khẩu"
           onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
           disabled={loading}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition disabled:bg-gray-400"
+          className="w-full bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </button>
 
         <p className="text-sm text-center mt-4">
           Chưa có tài khoản?{" "}
-          <Link
-            href="/register"
-            className="text-blue-500 hover:underline"
-          >
+          <Link href="/register" className="text-blue-500">
             Đăng ký
           </Link>
         </p>

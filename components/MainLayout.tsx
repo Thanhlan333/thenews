@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth.context";
 
 export default function MainLayout({
     children,
@@ -9,30 +10,7 @@ export default function MainLayout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) return;
-
-            try {
-                const res = await fetch("https://thenewsbackend.onrender.com/api/auth/me", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await res.json();
-                setUser(data);
-            } catch (error) {
-                console.error("Lỗi lấy user:", error);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    const { user, loading, logout } = useAuth();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -43,6 +21,7 @@ export default function MainLayout({
     };
 
     return (
+
         <div className="min-h-screen flex flex-col">
             {/* HEADER */}
             <header className="bg-white shadow px-6 py-4 flex justify-between">
@@ -57,17 +36,16 @@ export default function MainLayout({
                     <a href="/">Home</a>
                     <a href="/products">Products</a>
                     {/* HIỂN THỊ USER */}
-                    {user && (
-                        <p className="text-gray-700 font-medium">
-                            👤 {user.email}
-                        </p>
-                    )}
-                    {user && (
-                        <button onClick={handleLogout} className="text-red-500">
-                            Logout
-                        </button>
-                    )}
-                    {!user && (
+                    {loading ? (
+                        <p>Loading...</p>
+                    ) : user ? (
+                        <>
+                            <p>👤 {user.email}</p>
+                            <button onClick={logout} className="text-red-500">
+                                Logout
+                            </button>
+                        </>
+                    ) : (
                         <button onClick={handleLogin} className="text-red-500">
                             Login
                         </button>

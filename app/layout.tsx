@@ -1,9 +1,5 @@
-import "./globals.css";
-
-export const metadata = {
-  title: "My App",
-  description: "Fullstack project",
-};
+import './globals.css';
+import { AuthProvider } from "@/contexts/auth.context";
 
 export default function RootLayout({
   children,
@@ -11,8 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body>{children}</body>
+    <html lang="en">
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

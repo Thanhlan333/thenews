@@ -1,6 +1,7 @@
 import MainLayout from "@/components/MainLayout";
 
 export default function Home() {
+  console.log(process.env.NEXT_PUBLIC_API_URL);
   return (
     <MainLayout>
       <h1 className="text-3xl font-bold mb-6">Home Page</h1>
